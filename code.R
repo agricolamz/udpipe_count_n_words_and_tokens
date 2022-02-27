@@ -28,7 +28,7 @@ tibble(urls = c("https://github.com/UniversalDependencies/UD_Classical_Chinese-K
 
 library(udpipe)
 map(seq_along(lang_table$urls), function(i){
-  print(i)
+  print(lang_table$language[i])
   udpipe_read_conllu(lang_table$urls[i]) %>% 
     group_by(doc_id) %>% 
     summarise(n_words = n(),
