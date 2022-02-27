@@ -37,3 +37,16 @@ map(seq_along(lang_table$urls), function(i){
               corpus_code = lang_table$code[i]) %>% 
     write_csv("results.csv", na = "", append = TRUE)
 })
+
+df <- read_csv("results.csv")
+colnames(df) <- c("doc_id", "n_words", "n_tokens", "language", "corpus_code")
+df %>% 
+  filter(!is.na(doc_id)) %>% 
+  ggplot(aes(n_words, n_tokens))+
+  geom_point()+
+  facet_wrap(~language, scale = "free")+
+  geom_smooth(method = "lm", se = FALSE)+
+  labs(x = "количество слов", 
+       y = "количество уникальных слов",
+       caption = "данные корпусов Universal Dependencies")
+
