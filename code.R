@@ -46,6 +46,7 @@ library(udpipe)
 map(seq_along(lang_table$urls), function(i){
   print(lang_table$language[i])
   udpipe_read_conllu(lang_table$urls[i]) %>% 
+    filter(upos != "PUNCT") %>% 
     group_by(doc_id) %>% 
     summarise(n_words = n(),
               n_tokens = length(unique(token)),
@@ -71,6 +72,29 @@ df %>%
        y = "количество уникальных слов",
        caption = "данные корпусов Universal Dependencies")
 
+# make data more suitable for linear regressian
 df %>% 
+  mutate(remove = (language == "Spanish" & n_words > 1500)|
+           (language == "Russian" & n_words > 1500)|
+           (language == "Classical_Chinese" & n_words > 7500)|
+           (language == "Armenian" & n_words > 1300)|
+           (language == "Catalan" & n_words > 2500)|
+           (language == "Croatian" & n_words > 3000)|
+           (language == "Italian" & n_words > 40000)) %>% 
+  filter(!is.na(language),
+         !(language %in% c("Basque", "Chinese", "Dutch", "Danish", "Finnish", "French", "Galician", "Hindi", "Indonesian", "Japanese", "Korean", "Latin", "Naija", "Norwegian", "Persian", "Polish", "Portuguese", "Romanian", "Swedish")),
+         !remove) ->
+  filtered_dataset
+
+filtered_dataset %>% 
+  ggplot(aes(n_words, n_tokens))+
+  geom_point()+
+  facet_wrap(~language, scale = "free")+
+  geom_smooth(method = "lm", se = FALSE)+
+  labs(x = "количество слов", 
+       y = "количество уникальных слов",
+       caption = "данные корпусов Universal Dependencies")
+
+filtered_dataset %>% 
   group_by(language) %>% 
   group_map(~ broom::tidy(lm(n_tokens~0+n_words, data = .x)))
