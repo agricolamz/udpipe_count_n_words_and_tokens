@@ -61,6 +61,7 @@ colnames(df) <- c("doc_id", "n_words", "n_tokens", "language", "corpus_code")
 df %>% 
   filter(!is.na(doc_id)) %>% 
   write_csv("results.csv", na = "")
+
 df <- read_csv("results.csv")
 
 df %>% 
@@ -85,6 +86,10 @@ df %>%
          !(language %in% c("Basque", "Chinese", "Dutch", "Danish", "Finnish", "French", "Galician", "Hindi", "Indonesian", "Japanese", "Korean", "Latin", "Naija", "Norwegian", "Persian", "Polish", "Portuguese", "Romanian", "Swedish")),
          !remove) ->
   filtered_dataset
+
+filtered_dataset %>% 
+  select(-remove) %>% 
+  write_csv("filtered_dataset.csv")
 
 filtered_dataset %>% 
   ggplot(aes(n_words, n_tokens))+
